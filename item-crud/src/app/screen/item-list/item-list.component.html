@@ -1,4 +1,4 @@
-<div class="container mx-auto p-4">
+<div class="container mx-auto p-4 relative">
   <div class="flex justify-between items-center mb-4">
     <h1 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">Itens</h1>
     <div class="flex items-center space-x-2">
@@ -10,11 +10,14 @@
     </div>
   </div>
 
+  <!-- Overlay escurecendo o fundo -->
+  <div *ngIf="hoveredItem" class="fixed inset-0 bg-black/50 transition-opacity pointer-events-none" style="z-index:10;"></div>
+
   <div *ngIf="items.length === 0" class="text-center text-neutral-500 dark:text-neutral-100">Nenhum item cadastrado.</div>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-    <div *ngFor="let item of items" class="group bg-white/90 dark:bg-neutral-800 dark:text-neutral-100 border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-md hover:shadow-xl transition-transform transform hover:-translate-y-1 overflow-hidden flex flex-col">
-      <img [src]="item.imageUrl" [alt]="item.title" class="w-full h-40 object-contain bg-neutral-100 dark:bg-neutral-700 transition-transform duration-300" />
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-0">
+    <div *ngFor="let item of items" (mouseenter)="hoveredItem = item" (mouseleave)="hoveredItem = null" [ngStyle]="getCardStyle(item)" class="group bg-white/90 dark:bg-neutral-800 dark:text-neutral-100 border border-neutral-200 dark:border-neutral-700 rounded-xl overflow-visible flex flex-col select-none">
+      <img [src]="item.imageUrl" [alt]="item.title" class="w-full h-40 object-contain bg-neutral-100 dark:bg-neutral-700 transition-transform duration-300 rounded-lg" />
       <div class="flex-1 p-5 flex flex-col">
         <h2 class="text-xl font-semibold mb-2 text-neutral-900 dark:text-neutral-100">{{ item.title }}</h2>
         <p class="text-neutral-700 dark:text-neutral-100 mb-4 flex-1">{{ item.description }}</p>

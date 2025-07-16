@@ -27,6 +27,7 @@ import { CreateItemModalComponent } from '../../components/create-item-modal/cre
 })
 export class ItemListComponent {
   items: Item[] = [];
+  hoveredItem: Item | null = null;
   itemToDelete: Item | null = null;
   itemToEdit: Item | null = null;
   isCreateModalOpen = false;
@@ -73,7 +74,16 @@ export class ItemListComponent {
   }
 
   loadItems() {
-    this.itemService.getItems().subscribe((data) => (this.items = data));
+    this.itemService.getItems().subscribe((data) => {
+      // Adiciona rotação randômica para cada item (efeito de fotos espalhadas)
+      this.items = data.map((item) => ({
+        ...item,
+        // rotação entre -10º e 10º (exceto 0)
+        rotation: this.randomRotation(),
+        offsetX: this.randomOffset(),
+        offsetY: this.randomOffset()
+      })) as any;
+    });
   }
 
   editItem(item: Item) {
@@ -159,14 +169,21 @@ export class ItemListComponent {
   }
 
   onItemCreated(item: Item) {
-    this.items.push(item);
+    this.items.push({ ...(item as any), rotation: this.randomRotation(), offsetX: this.randomOffset(), offsetY: this.randomOffset() } as any);
     this.isCreateModalOpen = false;
   }
 
   onItemUpdated(item: Item) {
     const idx = this.items.findIndex((i) => i.id === item.id);
     if (idx !== -1) {
-      this.items[idx] = item;
+      // mantém rotação antiga ou aplica nova se não houver
+      const old = this.items[idx] as any;
+      this.items[idx] = {
+        ...(item as any),
+        rotation: old.rotation ?? this.randomRotation(),
+        offsetX: old.offsetX ?? this.randomOffset(),
+        offsetY: old.offsetY ?? this.randomOffset()
+      } as any;
     }
     this.itemToEdit = null;
   }
@@ -210,5 +227,35 @@ export class ItemListComponent {
   clearImageEdit() {
     this.imageChangedEventEdit = '';
     this.croppedImageEdit = null;
+  }
+
+  private randomRotation(): number {
+    let deg = 0;
+    while (deg === 0) {
+      deg = Math.floor(Math.random() * 21) - 10; // -10 .. 10
+    }
+    return deg;
+  }
+
+  private randomOffset(): number {
+    return Math.floor(Math.random() * 81) - 40; // -40 .. 40 px
+  }
+
+  getCardStyle(item: any) {
+    const isHovered = this.hoveredItem === item;
+    const someoneHovered = !!this.hoveredItem;
+    const rotation = item.rotation ?? 0;
+    const offsetX = item.offsetX ?? 0;
+    const offsetY = item.offsetY ?? 0;
+
+    return {
+      transform: isHovered
+        ? 'rotate(0deg) translate(0, 0) scale(1.25)'
+        : `translate(${offsetX}px, ${offsetY}px) rotate(${rotation}deg) scale(0.85)`,
+      zIndex: isHovered ? 30 : 5,
+      transition: 'transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease',
+      boxShadow: isHovered ? '0 15px 30px rgba(0,0,0,0.35)' : '0 2px 6px rgba(0,0,0,0.1)',
+      filter: someoneHovered && !isHovered ? 'brightness(0.5)' : 'none'
+    } as any;
   }
 } 
