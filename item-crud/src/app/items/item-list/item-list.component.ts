@@ -9,11 +9,14 @@ import { CommonModule } from '@angular/common';
 import { ImageCroppedEvent } from 'ngx-image-cropper';
 import { SafeUrl } from '@angular/platform-browser';
 import { ImageService } from '../../shared/image.service';
+import { ConfirmDeleteModalComponent } from './confirm-delete-modal.component';
+import { EditItemModalComponent } from './edit-item-modal.component';
+import { CreateItemModalComponent } from './create-item-modal.component';
 
 @Component({
   selector: 'app-item-list',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ImageCropperComponent],
+  imports: [CommonModule, ReactiveFormsModule, ImageCropperComponent, ConfirmDeleteModalComponent, EditItemModalComponent, CreateItemModalComponent],
   templateUrl: './item-list.component.html',
   styleUrl: './item-list.component.scss'
 })
@@ -144,6 +147,19 @@ export class ItemListComponent {
 
   cancelCreate() {
     this.isCreateModalOpen = false;
+  }
+
+  onItemCreated(item: Item) {
+    this.items.push(item);
+    this.isCreateModalOpen = false;
+  }
+
+  onItemUpdated(item: Item) {
+    const idx = this.items.findIndex((i) => i.id === item.id);
+    if (idx !== -1) {
+      this.items[idx] = item;
+    }
+    this.itemToEdit = null;
   }
 
   // Métodos para recorte de imagem
