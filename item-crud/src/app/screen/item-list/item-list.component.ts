@@ -50,12 +50,26 @@ export class ItemListComponent {
     imageUrl: ['', Validators.required]
   });
 
+  isDarkMode = false;
+
   constructor(
     private itemService: ItemService,
     private fb: FormBuilder,
     private imageService: ImageService
   ) {
     this.loadItems();
+    this.isDarkMode = localStorage.getItem('theme') === 'dark';
+  }
+
+  toggleDarkMode() {
+    this.isDarkMode = !this.isDarkMode;
+    if (this.isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
   }
 
   loadItems() {
