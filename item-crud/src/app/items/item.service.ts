@@ -1,16 +1,19 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Item } from './item.model';
+import { API_BASE_URL } from '../tokens/api-url.token';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ItemService {
 
-  private readonly apiUrl = 'http://localhost:3000/items';
+  private readonly apiUrl: string;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, @Inject(API_BASE_URL) baseUrl: string) {
+    this.apiUrl = `${baseUrl}/items`;
+  }
 
   getItems(): Observable<Item[]> {
     return this.http.get<Item[]>(this.apiUrl);

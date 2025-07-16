@@ -7,7 +7,8 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ImageCropperComponent } from 'ngx-image-cropper';
 import { CommonModule } from '@angular/common';
 import { ImageCroppedEvent } from 'ngx-image-cropper';
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { SafeUrl } from '@angular/platform-browser';
+import { ImageService } from '../../shared/image.service';
 
 @Component({
   selector: 'app-item-list',
@@ -47,7 +48,7 @@ export class ItemListComponent {
   constructor(
     private itemService: ItemService,
     private fb: FormBuilder,
-    private sanitizer: DomSanitizer
+    private imageService: ImageService
   ) {
     this.loadItems();
   }
@@ -149,22 +150,17 @@ export class ItemListComponent {
   fileChangeEvent(event: any): void {
     this.imageChangedEvent = event;
 
-    // Garante que o campo imageUrl receba um valor para que o formulário fique válido
     const file: File | undefined = event?.target?.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = reader.result as string;
-        this.createForm.get('imageUrl')?.setValue(result);
-      };
-      reader.readAsDataURL(file);
+      this.imageService
+        .fileToDataUrl(file)
+        .then((url) => this.createForm.get('imageUrl')?.setValue(url));
     }
   }
 
   imageCropped(event: ImageCroppedEvent) {
-    // Para versões 9+ usa objectUrl
     const url = event.base64 ?? event.objectUrl ?? '';
-    this.croppedImage = this.sanitizer.bypassSecurityTrustUrl(url);
+    this.croppedImage = this.imageService.sanitize(url);
     this.createForm.get('imageUrl')?.setValue(url);
   }
 
@@ -181,18 +177,15 @@ export class ItemListComponent {
 
     const file: File | undefined = event?.target?.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = reader.result as string;
-        this.editForm.get('imageUrl')?.setValue(result);
-      };
-      reader.readAsDataURL(file);
+      this.imageService
+        .fileToDataUrl(file)
+        .then((url) => this.editForm.get('imageUrl')?.setValue(url));
     }
   }
 
   imageCroppedEdit(event: ImageCroppedEvent) {
     const url = event.base64 ?? event.objectUrl ?? '';
-    this.croppedImageEdit = this.sanitizer.bypassSecurityTrustUrl(url);
+    this.croppedImageEdit = this.imageService.sanitize(url);
     this.editForm.get('imageUrl')?.setValue(url);
   }
 
