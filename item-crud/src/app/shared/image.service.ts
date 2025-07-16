@@ -5,9 +5,6 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 export class ImageService {
   constructor(private sanitizer: DomSanitizer) {}
 
-  /**
-   * Converte um arquivo em uma string Base64 (DataURL).
-   */
   fileToDataUrl(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -17,9 +14,6 @@ export class ImageService {
     });
   }
 
-  /**
-   * Sanitiza uma URL, permitindo seu uso seguro em bindings.
-   */
   sanitize(url: string): SafeUrl {
     return this.sanitizer.bypassSecurityTrustUrl(url);
   }

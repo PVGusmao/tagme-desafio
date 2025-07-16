@@ -1,24 +1,29 @@
 import { Component } from '@angular/core';
-import { ItemService } from '../item.service';
-import { Item } from '../item.model';
-// Navegação por rota não é mais necessária para edição em modal
-// Router não é mais necessário aqui, pois criação e edição são modais locais
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ImageCropperComponent } from 'ngx-image-cropper';
 import { CommonModule } from '@angular/common';
-import { ImageCroppedEvent } from 'ngx-image-cropper';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ImageCropperComponent, ImageCroppedEvent } from 'ngx-image-cropper';
 import { SafeUrl } from '@angular/platform-browser';
+
+import { Item } from '../../items/item.model';
+import { ItemService } from '../../items/item.service';
 import { ImageService } from '../../shared/image.service';
-import { ConfirmDeleteModalComponent } from './confirm-delete-modal.component';
-import { EditItemModalComponent } from './edit-item-modal.component';
-import { CreateItemModalComponent } from './create-item-modal.component';
+
+import { ConfirmDeleteModalComponent } from '../../components/confirm-delete-modal/confirm-delete-modal.component';
+import { EditItemModalComponent } from '../../components/edit-item-modal/edit-item-modal.component';
+import { CreateItemModalComponent } from '../../components/create-item-modal/create-item-modal.component';
 
 @Component({
   selector: 'app-item-list',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ImageCropperComponent, ConfirmDeleteModalComponent, EditItemModalComponent, CreateItemModalComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    ImageCropperComponent,
+    ConfirmDeleteModalComponent,
+    EditItemModalComponent,
+    CreateItemModalComponent
+  ],
   templateUrl: './item-list.component.html',
-  styleUrl: './item-list.component.scss'
 })
 export class ItemListComponent {
   items: Item[] = [];
@@ -26,26 +31,23 @@ export class ItemListComponent {
   itemToEdit: Item | null = null;
   isCreateModalOpen = false;
 
-  // Dados para recorte da imagem
   imageChangedEvent: any = '';
   croppedImage: SafeUrl | null = null;
 
-  // Variáveis dedicadas ao recorte de imagem no modo de edição
   imageChangedEventEdit: any = '';
   croppedImageEdit: SafeUrl | null = null;
 
-  // Formulário reativo para edição
   editForm = this.fb.group({
     id: [null as number | null],
     title: ['', Validators.required],
     description: ['', Validators.required],
-    imageUrl: ['', Validators.required],
+    imageUrl: ['', Validators.required]
   });
 
   createForm = this.fb.group({
     title: ['', Validators.required],
     description: ['', Validators.required],
-    imageUrl: ['', Validators.required],
+    imageUrl: ['', Validators.required]
   });
 
   constructor(
@@ -60,12 +62,9 @@ export class ItemListComponent {
     this.itemService.getItems().subscribe((data) => (this.items = data));
   }
 
-  // ------------- MÉTODOS DE EDIÇÃO -------------
   editItem(item: Item) {
     this.itemToEdit = item;
     this.editForm.patchValue(item);
-
-    // Reseta dados de recorte para o fluxo de edição
     this.clearImageEdit();
   }
 
@@ -82,13 +81,10 @@ export class ItemListComponent {
 
     this.itemService.delete(id).subscribe({
       next: () => {
-        // Remove o item do array local para refletir imediatamente na UI
         this.items = this.items.filter((i) => i.id !== id);
         this.itemToDelete = null;
       },
-      error: () => {
-        alert('Ocorreu um erro ao excluir o item.');
-      }
+      error: () => alert('Ocorreu um erro ao excluir o item.')
     });
   }
 
@@ -106,7 +102,6 @@ export class ItemListComponent {
 
     this.itemService.update(updatedItem).subscribe({
       next: (resp) => {
-        // Atualiza item localmente
         const idx = this.items.findIndex((i) => i.id === resp.id);
         if (idx !== -1) {
           this.items[idx] = resp;
@@ -162,15 +157,12 @@ export class ItemListComponent {
     this.itemToEdit = null;
   }
 
-  // Métodos para recorte de imagem
   fileChangeEvent(event: any): void {
     this.imageChangedEvent = event;
 
     const file: File | undefined = event?.target?.files?.[0];
     if (file) {
-      this.imageService
-        .fileToDataUrl(file)
-        .then((url) => this.createForm.get('imageUrl')?.setValue(url));
+      this.imageService.fileToDataUrl(file).then((url) => this.createForm.get('imageUrl')?.setValue(url));
     }
   }
 
@@ -186,16 +178,12 @@ export class ItemListComponent {
     this.createForm.get('imageUrl')?.setValue('');
   }
 
-  // ---------------- MÉTODOS PARA RECORTE DE IMAGEM NA EDIÇÃO ----------------
-
   fileChangeEventEdit(event: any): void {
     this.imageChangedEventEdit = event;
 
     const file: File | undefined = event?.target?.files?.[0];
     if (file) {
-      this.imageService
-        .fileToDataUrl(file)
-        .then((url) => this.editForm.get('imageUrl')?.setValue(url));
+      this.imageService.fileToDataUrl(file).then((url) => this.editForm.get('imageUrl')?.setValue(url));
     }
   }
 
@@ -209,4 +197,4 @@ export class ItemListComponent {
     this.imageChangedEventEdit = '';
     this.croppedImageEdit = null;
   }
-}
+} 

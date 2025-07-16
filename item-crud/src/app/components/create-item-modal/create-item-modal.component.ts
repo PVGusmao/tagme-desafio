@@ -2,8 +2,8 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ImageCropperComponent, ImageCroppedEvent } from 'ngx-image-cropper';
-import { Item } from '../item.model';
-import { ItemService } from '../item.service';
+import { Item } from '../../items/item.model';
+import { ItemService } from '../../items/item.service';
 import { ImageService } from '../../shared/image.service';
 import { SafeUrl } from '@angular/platform-browser';
 
@@ -11,34 +11,7 @@ import { SafeUrl } from '@angular/platform-browser';
   selector: 'app-create-item-modal',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ImageCropperComponent],
-  template: `
-    <div class="fixed inset-0 h-full z-50 flex items-center justify-center bg-black bg-opacity-50" (click)="onCancel()">
-      <div class="bg-white rounded-lg shadow-lg w-full max-w-[20%] p-6" (click)="$event.stopPropagation()">
-        <h2 class="text-xl font-semibold mb-4">Novo Item</h2>
-        <form [formGroup]="createForm" class="flex flex-col space-y-4">
-          <input formControlName="title" placeholder="Título" class="border p-2 rounded" />
-          <textarea formControlName="description" placeholder="Descrição" class="border p-2 rounded"></textarea>
-
-          <input type="file" accept="image/*" (change)="fileChangeEvent($event)" class="border p-2 rounded" />
-
-          <image-cropper
-            *ngIf="imageChangedEvent"
-            class="w-full max-h-64"
-            [imageChangedEvent]="imageChangedEvent"
-            [maintainAspectRatio]="false"
-            [resizeToWidth]="256"
-            format="png"
-            [output]="'base64'"
-            (imageCropped)="imageCropped($event)"></image-cropper>
-
-          <div class="flex justify-end space-x-2">
-            <button type="button" (click)="onCancel()" class="px-4 py-2 border rounded">Cancelar</button>
-            <button type="button" (click)="onCreate()" class="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-60" [disabled]="createForm.invalid">Criar</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  `
+  templateUrl: './create-item-modal.component.html'
 })
 export class CreateItemModalComponent {
   @Output() created = new EventEmitter<Item>();
